@@ -1,0 +1,39 @@
+Internal permission summary.
+
+Customer
+Project Manager
+Administrator
+Supplier
+
+Customers can:
+
+view documents
+track project progress
+approve design decisions
+sign contracts
+
+Customers cannot:
+
+approve invoices
+approve supplier proposals
+modify financial data
+
+Project managers can:
+
+approve invoices
+approve supplier proposals
+add variation costs
+mark invoicing as completed
+
+Administrators can:
+
+modify financial configuration
+change system roles
+edit project settings
+
+Suppliers can:
+
+submit proposals
+view work items assigned to them
+
+They cannot approve proposals.

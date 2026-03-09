@@ -1,0 +1,65 @@
+Supplier Proposal Workflow
+
+Construction projects involve multiple suppliers.
+
+Examples:
+
+electricians
+
+plumbers
+
+facade installers
+
+insulation contractors
+
+roofing specialists
+
+Each project defines multiple work items.
+
+Examples of work items:
+
+facade installation
+
+structural concrete
+
+electrical wiring
+
+plumbing
+
+roofing
+
+Suppliers submit proposals for work items.
+
+Proposal contents
+
+A supplier proposal usually contains:
+
+supplier name
+
+work item reference
+
+estimated cost
+
+execution timeline
+
+technical notes
+
+Proposal approval
+
+Project managers review submitted proposals and approve one.
+
+Once approved:
+
+The proposal becomes the active supplier assignment.
+
+Rejected proposals remain stored for reference.
+
+Pricing rules
+
+Prices can change while a proposal is under review.
+
+After approval, the price is normally fixed.
+
+However, changes may still occur through addendums.
+
+Addendums represent additional work that was not originally planned.

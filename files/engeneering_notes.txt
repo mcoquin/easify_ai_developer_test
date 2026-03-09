@@ -1,0 +1,26 @@
+Internal notes copied from engineering discussions.
+
+Do not treat this document as official specification.
+
+Reminder regarding invoicing system:
+
+If a new cost is approved AFTER invoicing_completed, the system should display a warning.
+
+This warning exists because historically variation costs were approved but never invoiced.
+
+Important reminder:
+
+Blocks are not financial entities.
+
+Units are financial entities.
+
+Another note:
+
+Some older documentation still mentions block invoices.
+This is outdated.
+
+Possible future improvement:
+
+Hybrid search for document retrieval in the internal AI assistant.
+
+Embedding-only retrieval sometimes misses financial rules buried in long sections.

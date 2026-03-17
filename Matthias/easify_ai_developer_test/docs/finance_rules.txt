@@ -1,0 +1,48 @@
+Invoice System
+
+Invoices are generated for units during the construction lifecycle.
+
+Typical reasons for invoices include:
+
+milestone payments
+
+optional upgrades
+
+variation costs
+
+extra construction work
+
+Invoice states
+Status	Meaning
+Draft	Being prepared
+Pending Approval	Waiting for review
+Approved	Ready to send
+Sent	Delivered
+Paid	Payment received
+Invoice ownership
+
+Invoices belong to units.
+
+Blocks do not contain invoices.
+
+This rule ensures financial traceability.
+
+Exception (rare)
+
+Some accounting exports may group invoices per block for reporting purposes.
+
+This does not change the ownership of invoices.
+
+Invoices remain linked to units internally.
+
+Invoicing completion
+
+A unit can be marked as:
+
+INVOICING_COMPLETED
+
+This indicates that all expected invoices have been generated.
+
+However, additional costs may still occur later.
+
+When this happens, a separate invoice must be created.

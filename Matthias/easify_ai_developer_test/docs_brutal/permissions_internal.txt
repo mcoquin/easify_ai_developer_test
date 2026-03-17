@@ -1,0 +1,38 @@
+User roles are used to control access to project information.
+
+Main roles used in the platform:
+
+Customer
+Project Manager
+Administrator
+Supplier
+
+Customers represent buyers of units.
+
+Customers can:
+
+view project progress
+view documents
+approve design options
+sign contracts digitally
+
+Customers cannot modify financial data.
+
+Project managers have operational control over the project.
+
+They can:
+
+approve supplier proposals
+approve invoices
+add variation costs
+mark invoicing as completed
+
+Administrators have full system permissions.
+
+They can modify system settings, financial configuration, and user roles.
+
+Suppliers have limited access.
+
+They can submit proposals and view work items assigned to them.
+
+They cannot approve proposals.

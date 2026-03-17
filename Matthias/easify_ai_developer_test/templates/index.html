@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easify Assistant</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --border: #2a2d3a;
+            --text: #e4e4e7;
+            --muted: #9ca3af;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --source-bg: #1e2130;
+            --outdated: #f59e0b;
+            --current: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 2rem 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover { background: var(--accent-hover); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .options label { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+        .options input[type="radio"] { accent-color: var(--accent); }
+
+        .result {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .answer-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            line-height: 1.65;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+        }
+
+        .sources-header {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .source-card {
+            background: var(--source-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.825rem;
+        }
+
+        .source-card .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .source-card .filename {
+            font-weight: 600;
+            color: var(--accent-hover);
+        }
+
+        .badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge.current { background: rgba(34,197,94,0.15); color: var(--current); }
+        .badge.outdated { background: rgba(245,158,11,0.15); color: var(--outdated); }
+        .badge.informal { background: rgba(99,102,241,0.15); color: var(--accent-hover); }
+
+        .source-card .snippet {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .examples {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .examples h3 {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .example-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.6rem 0.85rem;
+            margin-bottom: 0.4rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .example-btn:hover { border-color: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Easify Assistant</h1>
+        <p class="subtitle">Ask questions about the Easify construction platform documentation</p>
+
+        <div class="input-group">
+            <input type="text" id="question" placeholder="Ask a question..."
+                   autofocus autocomplete="off" />
+            <button id="askBtn" onclick="askQuestion()">Ask</button>
+        </div>
+
+        <div class="options">
+            <label><input type="radio" name="dataset" value="all" checked> All docs</label>
+            <label><input type="radio" name="dataset" value="docs"> Clean only</label>
+        </div>
+
+        <div class="result" id="result">
+            <div class="answer-box" id="answer"></div>
+            <div class="sources-header">Source Documents</div>
+            <div id="sources"></div>
+        </div>
+
+        <div class="examples">
+            <h3>Example questions</h3>
+            <button class="example-btn" onclick="fillQuestion(this)">What is the difference between a block and a unit?</button>
+            <button class="example-btn" onclick="fillQuestion(this)">Can invoices exist on blocks?</button>
+            <button class="example-btn" onclick="fillQuestion(this)">Who can approve supplier proposals?</button>
+            <button class="example-btn" onclick="fillQuestion(this)">What happens when costs are approved after invoicing is completed?</button>
+            <button class="example-btn" onclick="fillQuestion(this)">What are addendums used for?</button>
+            <button class="example-btn" onclick="fillQuestion(this)">Which roles can modify financial configuration?</button>
+            <button class="example-btn" onclick="fillQuestion(this)">How does the platform integrate with Stripe payments?</button>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('question');
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') askQuestion(); });
+
+        function fillQuestion(btn) {
+            input.value = btn.textContent;
+            askQuestion();
+        }
+
+        async function askQuestion() {
+            const question = input.value.trim();
+            if (!question) return;
+
+            const dataset = document.querySelector('input[name="dataset"]:checked').value;
+            const btn = document.getElementById('askBtn');
+            const resultDiv = document.getElementById('result');
+            const answerDiv = document.getElementById('answer');
+            const sourcesDiv = document.getElementById('sources');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Thinking...';
+            resultDiv.style.display = 'block';
+            answerDiv.textContent = 'Retrieving and generating answer...';
+            sourcesDiv.innerHTML = '';
+
+            try {
+                const res = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, dataset }),
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                answerDiv.textContent = data.answer;
+
+                sourcesDiv.innerHTML = data.sources.map(s => `
+                    <div class="source-card">
+                        <div class="meta">
+                            <span class="filename">${s.source}</span>
+                            <span class="badge ${s.metadata.reliability || 'current'}">${s.metadata.reliability || 'current'}</span>
+                        </div>
+                        <div class="snippet">${s.content}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                answerDiv.textContent = 'Error: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Ask';
+            }
+        }
+    </script>
+</body>
+</html>

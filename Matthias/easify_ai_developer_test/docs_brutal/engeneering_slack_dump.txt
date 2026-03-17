@@ -1,0 +1,23 @@
+Random notes copied from engineering discussions.
+
+These messages may not represent final specifications.
+
+Reminder from finance meeting:
+
+If a cost is approved AFTER invoicing_completed, the system must warn the administrator.
+
+Historically variation costs were approved but never invoiced.
+
+Another reminder:
+
+Blocks should never contain financial records.
+
+Units are the financial entity.
+
+Possible improvement discussed:
+
+Hybrid search for internal AI documentation assistant.
+
+Embedding-only search sometimes fails to retrieve rules hidden deep in documents.
+
+Someone mentioned testing block-level invoices again for reporting purposes, but this is not currently supported.

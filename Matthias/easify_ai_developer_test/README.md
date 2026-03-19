@@ -92,6 +92,7 @@ rag-system/
 ├── templates/
 │   └── index.html          # Minimal web interface
 ├── cli.py                  # Command-line interface
+├── evaluate.py             # Evaluation harness with test cases
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -102,7 +103,9 @@ rag-system/
 ### Pipeline Overview
 
 ```
-Question → Embedding → ChromaDB Search → Top-K Chunks → Claude → Grounded Answer
+Question → Embedding ──┐
+                       ├─ Reciprocal Rank Fusion → Cross-Encoder Re-ranking → Top-K → Claude → Answer
+Question → BM25 ───────┘
 ```
 
 ### Key Design Decisions
@@ -136,11 +139,24 @@ Each chunk retains metadata: source file, dataset, reliability, chunk index.
 - Good performance on semantic similarity benchmarks
 - 384-dimensional vectors (efficient for ChromaDB)
 
-#### 4. Retrieval
+#### 4. Hybrid Search (Vector + BM25)
 
-ChromaDB similarity search with optional dataset filtering. Relevance scores are attached to results and passed to the LLM context so Claude can gauge how relevant each source is.
+The retriever combines two search strategies using **Reciprocal Rank Fusion (RRF)**:
 
-#### 5. Answer Generation
+- **Vector search** (ChromaDB): Finds semantically similar chunks via cosine similarity on embeddings. Good at understanding meaning ("Can invoices exist on blocks?" matches "Blocks cannot contain invoices").
+- **BM25 keyword search**: Exact term matching using the Okapi BM25 algorithm. Good at finding specific terms that embeddings might miss (e.g., `INVOICING_COMPLETED`, `addendum`).
+
+RRF merges both ranked lists with configurable weights (default: 70% vector, 30% BM25). This produces a broader candidate set than either method alone.
+
+Enabled by default. Disable with `USE_HYBRID_SEARCH=false` in `.env`.
+
+#### 5. Cross-Encoder Re-ranking
+
+After hybrid retrieval returns ~15 candidates, a **cross-encoder** (`ms-marco-MiniLM-L-6-v2`) re-scores each (query, chunk) pair. Unlike bi-encoder embeddings which encode query and document independently, the cross-encoder processes them together — making it significantly more accurate at judging relevance, at the cost of being slower (which is why it's only applied to the short candidate list, not the full corpus).
+
+The top 5 re-ranked chunks are sent to Claude. Enabled by default. Disable with `USE_RERANKER=false` in `.env`.
+
+#### 6. Answer Generation
 
 Claude receives structured context with source labels, reliability ratings, and relevance scores. The system prompt instructs it to:
 - Only use provided context
@@ -155,6 +171,23 @@ The `docs_brutal` directory contains deliberately messy data. The system handles
 1. **Metadata tagging**: Archived/historical docs are tagged as `outdated`, Slack dumps as `informal`
 2. **Context enrichment**: Reliability labels in the LLM prompt help Claude weigh sources
 3. **Overlap deduplication**: Identical chunks in the response are deduplicated
+
+## Evaluation
+
+The project includes an automated evaluation harness with 12 test cases covering all question categories.
+
+```bash
+# Full eval (retrieval + answer generation, requires API key)
+python evaluate.py
+
+# Retrieval only (no LLM calls, tests search quality)
+python evaluate.py --retrieval
+
+# Verbose mode (shows full answers and missing keywords)
+python evaluate.py --verbose
+```
+
+Each test case defines expected keywords, negative keywords (hallucination check), and expected source files. The harness reports keyword recall, source recall, hallucination count, and per-question pass/partial/fail status.
 
 ## API Endpoints
 
@@ -195,11 +228,8 @@ Response:
 
 ## Improvements With More Time
 
-1. **Hybrid search**: Combine vector similarity with BM25 keyword search for better retrieval of specific terms (e.g., "INVOICING_COMPLETED" status)
-2. **Re-ranking**: Add a cross-encoder re-ranker after initial retrieval to improve precision
-3. **Query expansion**: Rephrase the user question into multiple search queries to improve recall
-4. **Evaluation harness**: Automated tests with expected Q&A pairs to measure retrieval quality and answer accuracy
-5. **Document versioning**: Track document timestamps and prefer the most recent version when duplicates exist
-6. **Streaming responses**: Stream Claude's response to the web UI for better UX
-7. **Caching**: Cache frequent queries to reduce API calls and latency
-8. **Metadata filtering in prompts**: More sophisticated weighting of source reliability (e.g., numeric confidence scores)
+1. **Query expansion**: Rephrase the user question into multiple search queries to improve recall
+2. **Document versioning**: Track document timestamps and prefer the most recent version when duplicates exist
+3. **Streaming responses**: Stream Claude's response to the web UI for better UX
+4. **Caching**: Cache frequent queries to reduce API calls and latency
+5. **Weighted metadata scoring**: Numeric confidence multipliers based on reliability tier
